@@ -10,7 +10,8 @@
   var filterMap;
   var diff = new Date - new Date(1989, 08, 25);
   var expires = new Date;
-  expires.setTime((new Date).getTime() + diff);
+  expires.setTime(Date.now() + diff);
+  console.log(expires);
 
   if (docCookies && docCookies.hasItem('filter')) {
     var filter = docCookies.getItem('filter');
