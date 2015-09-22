@@ -3,20 +3,103 @@
   var resizeForm = document.forms['upload-resize'];
   var filterForm = document.forms['upload-filter'];
 
-  var previewImage = resizeForm.querySelector('.resize-image-preview');
-  var prevButton = resizeForm['resize-prev'];
+  var previewImage = resizeForm.querySelector('.resize-image-preview'),
+      prevButton = resizeForm['resize-prev'],
+      resizeFieldX = resizeForm['resize-x'],
+      resizeFieldY = resizeForm['resize-y'],
+      resizeFieldSize = resizeForm['resize-size'],
+      isImageloaded = false,
+      imgW = 0,
+      imgH = 0,
+      maxSize = 0,
+      offsetX = resizeFieldX.value || 0,
+      offsetY = resizeFieldY.value || 0;
+
+
+
+  previewImage.onload = function(ev) {
+    console.log('load');
+    isImageloaded = true;
+    imgW = this.offsetWidth;
+    imgH = this.offsetHeight;
+    maxSize = Math.min(imgW, imgH);
+
+    resizeFieldX.min = 0;
+    resizeFieldY.min = 0;
+    resizeFieldSize.min = 0;
+    resizeFieldX.max = imgW;
+    resizeFieldY.max = imgH;
+    resizeFieldSize.max = maxSize;
+  }
+
+
+  resizeFieldSize.onchange = function(ev) {
+    var val = parseInt(this.value);
+    this.max = maxSize;
+    if (isNaN(val) || val < 0) {
+      val = 0;
+    } else {
+      val = Math.min(val, maxSize);
+    }
+    this.value = val;
+
+    resizeFieldX.max = (maxSize - val);
+    resizeFieldY.max = (maxSize - val);
+  }
+
+  resizeFieldX.onchange = function(ev) {
+    var val = parseInt(this.value);
+    this.max = maxSize - 1;
+    if (isNaN(val) || val < 0) {
+      val = 0;
+    } else {
+      val = Math.min(val, maxSize - 1);
+    }
+    offsetX = val;
+    resizeFieldSize.max = Math.min(maxSize - offsetY, maxSize - offsetX);
+    this.value = val;
+  }
+
+  resizeFieldY.onchange = function(ev) {
+    var val = parseInt(this.value);
+    this.max = maxSize - 1;
+    if (isNaN(val) || val < 0) {
+      val = 0;
+    } else {
+      val = Math.min(val, maxSize - 1);
+    }
+    offsetY = val;
+    resizeFieldSize.max = Math.min(maxSize - offsetY, maxSize - offsetX);
+    this.value = val;
+  }
+
+
+
+
 
   prevButton.onclick = function(evt) {
     evt.preventDefault();
 
     resizeForm.reset();
     uploadForm.reset();
+    isImageloaded = false;
     resizeForm.classList.add('invisible');
     uploadForm.classList.remove('invisible');
   };
 
   resizeForm.onsubmit = function(evt) {
     evt.preventDefault();
+
+    if (!isImageloaded || !maxSize) {
+      alert('Изображение недоступно');
+      return;
+    }
+
+    if (!resizeFieldSize.value) {
+      alert('Сначала выберите кадрирование');
+      return;
+    }
+
     filterForm.elements['filter-image-src'] = previewImage.src;
 
     resizeForm.classList.add('invisible');
