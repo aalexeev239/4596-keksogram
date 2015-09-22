@@ -43,33 +43,33 @@
     }
     this.value = val;
 
-    resizeFieldX.max = (maxSize - val);
-    resizeFieldY.max = (maxSize - val);
+    resizeFieldX.max = (imgW - val);
+    resizeFieldY.max = (imgH - val);
   }
 
   resizeFieldX.onchange = function(ev) {
     var val = parseInt(this.value);
-    this.max = maxSize - 1;
+    this.max = imgW - 1;
     if (isNaN(val) || val < 0) {
       val = 0;
     } else {
-      val = Math.min(val, maxSize - 1);
+      val = Math.min(val, imgW - 1);
     }
     offsetX = val;
-    resizeFieldSize.max = Math.min(maxSize - offsetY, maxSize - offsetX);
+    resizeFieldSize.max = Math.min(imgW - offsetX,imgH - offsetY);
     this.value = val;
   }
 
   resizeFieldY.onchange = function(ev) {
     var val = parseInt(this.value);
-    this.max = maxSize - 1;
+    this.max = imgH - 1;
     if (isNaN(val) || val < 0) {
       val = 0;
     } else {
-      val = Math.min(val, maxSize - 1);
+      val = Math.min(val, imgH - 1);
     }
     offsetY = val;
-    resizeFieldSize.max = Math.min(maxSize - offsetY, maxSize - offsetX);
+    resizeFieldSize.max = Math.min(imgW - offsetX,imgH - offsetY);
     this.value = val;
   }
 
