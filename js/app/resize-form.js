@@ -12,66 +12,68 @@
       imgW = 0,
       imgH = 0,
       maxSize = 0,
-      offsetX = resizeFieldX.value || 0,
-      offsetY = resizeFieldY.value || 0;
+      maxOffsetX = resizeFieldX.value || 0,
+      maxOffsetY = resizeFieldY.value || 0;
 
 
+
+  var setupField = function(field, max, min) {
+    var val = parseInt(field.value) || 0,
+        min = typeof min !== 'undefined' ? min : field.min || 0;
+    if (val < min) {
+      field.value = min;
+    } else if (val > max) {
+      field.value = max;
+    }
+
+    field.max = max;
+    field.min = min;
+
+    return;
+  }
+
+  // fast test image
+  // resizeForm.classList.remove('invisible');
+  // uploadForm.classList.add('invisible');
+  // previewImage.src = 'img/logo-background-2.jpg';
 
   previewImage.onload = function(ev) {
-    console.log('load');
     isImageloaded = true;
     imgW = this.offsetWidth;
     imgH = this.offsetHeight;
     maxSize = Math.min(imgW, imgH);
-
-    resizeFieldX.min = 0;
-    resizeFieldY.min = 0;
-    resizeFieldSize.min = 0;
-    resizeFieldX.max = imgW;
-    resizeFieldY.max = imgH;
-    resizeFieldSize.max = maxSize;
   }
 
 
   resizeFieldSize.onchange = function(ev) {
+    setupField(resizeFieldSize, maxSize, 1);
     var val = parseInt(this.value);
-    this.max = maxSize;
-    if (isNaN(val) || val < 0) {
-      val = 0;
-    } else {
-      val = Math.min(val, maxSize);
-    }
-    // this.value = val;
 
-    resizeFieldX.max = (imgW - val);
-    resizeFieldY.max = (imgH - val);
+    if (val) {
+      maxOffsetX = imgW - val;
+      maxOffsetY = imgH - val;
+      setupField(resizeFieldX, maxOffsetX);
+      setupField(resizeFieldY, maxOffsetY);
+
+    }
+
   }
 
-  // resizeFieldX.onchange = function(ev) {
-  //   var val = parseInt(this.value);
-  //   this.max = imgW - 1;
-  //   if (isNaN(val) || val < 0) {
-  //     val = 0;
-  //   } else {
-  //     val = Math.min(val, imgW - 1);
-  //   }
-  //   offsetX = val;
-  //   resizeFieldSize.max = Math.min(imgW - offsetX,imgH - offsetY);
-  //   this.value = val;
-  // }
+  resizeFieldX.onchange = function(ev) {
+    setupField(resizeFieldX, imgW - 1, 0);
 
-  // resizeFieldY.onchange = function(ev) {
-  //   var val = parseInt(this.value);
-  //   this.max = imgH - 1;
-  //   if (isNaN(val) || val < 0) {
-  //     val = 0;
-  //   } else {
-  //     val = Math.min(val, imgH - 1);
-  //   }
-  //   offsetY = val;
-  //   resizeFieldSize.max = Math.min(imgW - offsetX,imgH - offsetY);
-  //   this.value = val;
-  // }
+    maxOffsetX = parseInt(this.value) || 0;
+
+    setupField(resizeFieldSize, Math.min(imgW - maxOffsetX,imgH - maxOffsetY));
+  }
+
+  resizeFieldY.onchange = function(ev) {
+    setupField(resizeFieldY, imgH - 1, 0);
+
+    maxOffsetY = parseInt(this.value) || 0;
+    console.log(imgW - maxOffsetX,imgH - maxOffsetY);
+    setupField(resizeFieldSize, Math.min(imgW - maxOffsetX,imgH - maxOffsetY));
+  }
 
 
   prevButton.onclick = function(evt) {
