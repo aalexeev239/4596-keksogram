@@ -8,10 +8,9 @@
   var selectedFilter = filterForm['upload-filter'];
 
   var filterMap;
-  var diff = new Date - new Date(1989, 08, 25);
+  var diff = new Date - new Date(1989, 8, 25);
   var expires = new Date;
   expires.setTime(Date.now() + diff);
-  console.log(expires);
 
   if (docCookies && docCookies.hasItem('filter')) {
     var filter = docCookies.getItem('filter');
@@ -58,8 +57,8 @@
   filterForm.onsubmit = function(evt) {
     evt.preventDefault();
 
-    // uploadForm.classList.remove('invisible');
-    // filterForm.classList.add('invisible');
+    uploadForm.classList.remove('invisible');
+    filterForm.classList.add('invisible');
   }
 
   setFilter();
