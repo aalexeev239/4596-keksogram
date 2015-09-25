@@ -8,6 +8,20 @@
   var selectedFilter = filterForm['upload-filter'];
 
   var filterMap;
+  var diff = new Date - new Date(1989, 8, 25);
+  var expires = new Date;
+  expires.setTime(Date.now() + diff);
+
+  if (docCookies && docCookies.hasItem('filter')) {
+    var filter = docCookies.getItem('filter');
+
+    previewImage.className = 'filter-image-preview' + ' ' + filter;
+
+    if (filterForm['upload-filter-'+filter]) {
+      selectedFilter.value = filter;
+    }
+  }
+
 
   function setFilter() {
     if (!filterMap) {
@@ -19,7 +33,12 @@
     }
 
     previewImage.className = 'filter-image-preview' + ' ' + filterMap[selectedFilter.value];
+    if (docCookies) {
+      docCookies.setItem('filter', selectedFilter.value, expires);
+    }
   };
+
+
 
   for (var i = 0, l = selectedFilter.length; i < l; i++) {
     selectedFilter[i].onchange = function(evt) {
@@ -35,7 +54,7 @@
     resizeForm.classList.remove('invisible');
   };
 
-  filterForm.onsubmit = function() {
+  filterForm.onsubmit = function(evt) {
     evt.preventDefault();
 
     uploadForm.classList.remove('invisible');
