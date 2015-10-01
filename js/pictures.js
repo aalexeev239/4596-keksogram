@@ -1,5 +1,5 @@
+'use strict';
 var pictureTemplate = (function() {
-  'use strict';
 
   var filtersBlock;
   var picturesBlock;
@@ -25,13 +25,15 @@ var pictureTemplate = (function() {
       picturesBlock = document.querySelector('.pictures');
       template = document.getElementById('picture-template');
 
-      if (!filtersBlock || !picturesBlock || !template) return;
+      if (!filtersBlock || !picturesBlock || !template) {
+        return;
+      }
 
 
       filtersBlock.classList.add('hidden');
 
 
-      this.loadData(this.onLoadSuccess,this.onLoadFailure);
+      this.loadData(this.onLoadSuccess, this.onLoadFailure);
     },
     loadData: function(success, failure) {
 
@@ -60,7 +62,7 @@ var pictureTemplate = (function() {
               failure();
             }
         }
-      }
+      };
 
       xhr.send();
     },
@@ -78,14 +80,14 @@ var pictureTemplate = (function() {
       // clearing pictureBlock
       picturesBlock.innerHTML = '';
 
-      data.forEach(function(picture, i) {
+      data.forEach(function(picture) {
         frag.appendChild(pictureTemplate.getPictureHTML(picture));
       });
 
       picturesBlock.appendChild(frag);
     },
     getPictureHTML: function(picture) {
-      function imgFailure(){
+      function imgFailure() {
         picImg.classList.add('picture-load-failure');
       }
 
@@ -114,11 +116,11 @@ var pictureTemplate = (function() {
         img.onerror = imgFailure;
 
         img.onload = function() {
-          pic.replaceChild(this, picImg)
+          pic.replaceChild(this, picImg);
           this.style.width = 182;
           this.style.hight = 182;
           clearTimeout(imgTimer);
-        }
+        };
 
         img.src = picture.url;
 
@@ -130,9 +132,11 @@ var pictureTemplate = (function() {
     setupFilters: function(pictures) {
       var filterForm = document.querySelector('.filters');
 
-      if (!filterForm.filter) return;
+      if (!filterForm.filter) {
+        return;
+      }
 
-      filterForm.addEventListener('change', function(e) {
+      filterForm.addEventListener('change', function() {
         pictureTemplate.renderPictures(pictureTemplate.applyFilter(pictures, filterForm.filter.value));
       });
     },
@@ -140,24 +144,24 @@ var pictureTemplate = (function() {
       var res;
       switch (val) {
         case 'new':
-          res = items.filter(function(a){
+          res = items.filter(function(a) {
             var dateA = Date.parse(a.date);
             var now = Date.now();
 
             return now - dateA < FILTER_NEW_AMOUNT;
-          }).sort(function(a,b){
+          }).sort(function(a, b) {
             var dateA = Date.parse(a.date);
             var dateB = Date.parse(b.date);
 
             return dateB - dateA;
           });
-
-        break;
+          break;
 
         case 'discussed':
-          res = items.sort(function(a,b){
+          res = items.sort(function(a, b) {
             return b.comments - a.comments;
           });
+          break;
 
         default:
           res = items.slice(0);
@@ -174,6 +178,6 @@ var pictureTemplate = (function() {
 
 
 // initing module
-document.addEventListener("DOMContentLoaded", function(){
+document.addEventListener('DOMContentLoaded', function() {
   pictureTemplate.init();
 });
