@@ -1,15 +1,25 @@
 {
-  "name": "keksogram",
-  "version": "0.0.1",
+  "name": "4596-keksogram",
+  "version": "0.1.0",
   "private": true,
+  "description": "Обучающий проект «keksogram» от HTML Academy",
+  "author": "Андрей Алексеев",
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/js-htmlacademy/4596-keksogram.git"
+  },
+  "bugs": {
+    "url": "https://github.com/js-htmlacademy/4596-keksogram/issues"
+  },
+  "homepage": "https://github.com/js-htmlacademy/4596-keksogram",
   "devDependencies": {
-    "browser-sync": "^2.7.13",
-    "coffee-script": "^1.9.3",
-    "gulp": "^3.9.0",
-    "gulp-concat": "^2.6.0",
-    "gulp-load-plugins": "^1.0.0-rc",
-    "gulp-notify": "^2.2.0",
-    "gulp-plumber": "^1.0.1",
-    "gulp-uglify": "^1.4.1"
+    "eslint": "1.5.1"
+  },
+  "scripts": {
+    "gosha": "make",
+    "test": "eslint js/"
+  },
+  "engines": {
+    "node": "^0.12.7"
   }
 }
