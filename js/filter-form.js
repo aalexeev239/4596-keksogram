@@ -12,7 +12,7 @@
   var expires = new Date;
   expires.setTime(Date.now() + diff);
 
-  if (docCookies && docCookies.hasItem('filter')) {
+  if (typeof docCookies !== 'undefined' && docCookies.hasItem('filter')) {
     var filter = docCookies.getItem('filter');
 
     previewImage.className = 'filter-image-preview' + ' ' + filter;
@@ -33,7 +33,7 @@
     }
 
     previewImage.className = 'filter-image-preview' + ' ' + filterMap[selectedFilter.value];
-    if (docCookies) {
+    if (typeof docCookies !== 'undefined') {
       docCookies.setItem('filter', selectedFilter.value, expires);
     }
   };
