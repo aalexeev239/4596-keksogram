@@ -166,7 +166,6 @@ var pictureTemplate = (function() {
         default:
           res = items.slice(0);
       }
-
       return res;
     }
   };
