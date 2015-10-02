@@ -14,7 +14,7 @@ var pictureTemplate = (function() {
     'DONE': 4
   };
   // one month
-  var FILTER_NEW_AMOUNT = 1*30*24*60*60*1000
+  var FILTER_NEW_AMOUNT = 1*30*24*60*60*1000;
 
 
   var pictureTemplate = {
