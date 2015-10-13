@@ -17,6 +17,8 @@ var pictureTemplate = (function() {
   // one month
   var FILTER_NEW_AMOUNT = 1 * 30 * 24 * 60 * 60 * 1000;
 
+  var CASCADE_DELAY = 250;
+
   var PICTURE_SIZE = 182;
 
 
@@ -88,21 +90,58 @@ var pictureTemplate = (function() {
       // clearing pictureBlock
       picturesBlock.innerHTML = '';
 
+      var len = data.length;
+      var showImg = $.Deferred();
+
+
       // get items
       data.forEach(function(item) {
         var rendered = me.getPictureHTML(item);
         var picImg = rendered.querySelector('img');
 
+        item.rendered = rendered;
 
-        me.loadImage(item.url).then(function(res) {
-          rendered.replaceChild(res, picImg);
-          res.style.width = PICTURE_SIZE;
-          res.style.hight = PICTURE_SIZE;
-        }).fail(function() {
+        me.loadImage(item.url).done(function(res) {
+          // save picture on success
+          item.imgData = res;
+        }).always(function(){
           picImg.classList.add('picture-load-failure');
+
+          if (--len === 0) {
+            // check if all images passed
+            showImgFlag.resolve();
+          }
         });
 
         frag.appendChild(rendered);
+      });
+
+      // when all images passed
+      showImg.done(function(){
+
+        // get loaded images
+        var successLoaded = data.filter(function(item){
+          return item.hasOwnProperty('imgData');
+        });
+
+        //  render images on timer
+        var timer = setTimeout(function cascade() {
+
+          var item = successLoaded.shift();
+
+          if (!item) {
+            clearTimeout(timer);
+          } else {
+            var elem = item.rendered;
+            var picImg = elem.querySelector('img');
+            var img = item.imgData;
+            picImg.classList.remove('picture-load-failure');
+            elem.replaceChild(img, picImg);
+            img.style.width = PICTURE_SIZE;
+            img.style.hight = PICTURE_SIZE;
+          }
+          timer = setTimeout(cascade, CASCADE_DELAY);
+        }, CASCADE_DELAY);
       });
 
 
