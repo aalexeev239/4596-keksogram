@@ -229,7 +229,7 @@ var pictureTemplate = (function() {
 
       if (filterId) {
         filtersBlock.filter.value = filterId;
-      };
+      }
 
       filtersBlock.addEventListener('change', function() {
         me.setFilter(filtersBlock.filter.value);
