@@ -93,9 +93,6 @@ var pictureTemplate = (function() {
 
       // setup main part
       me.setupFilters();
-
-      picturesBlock.classList.remove('pictures-loading');
-      filtersBlock.classList.remove('hidden');
     },
     // main rendering function
     renderPictures: function(items, pageNumber, replace) {
@@ -223,24 +220,36 @@ var pictureTemplate = (function() {
       return pic;
     },
     setupFilters: function() {
-      var filterForm = document.querySelector('.filters');
 
-      if (!filterForm.filter) {
+      var filterId = localStorage.getItem('filterId');
+
+      if (!filtersBlock.filter) {
         return;
       }
 
-      filterForm.addEventListener('change', function() {
-        me.setFilter(filterForm.filter.value);
+      if (filterId) {
+        filtersBlock.filter.value = filterId;
+      };
+
+      filtersBlock.addEventListener('change', function() {
+        me.setFilter(filtersBlock.filter.value);
       });
 
-      // default setting
-      me.setFilter();
+      picturesBlock.classList.remove('pictures-loading');
+      filtersBlock.classList.remove('hidden');
+
+      me.setFilter(filterId);
       me.initScroll();
     },
     setFilter: function(filterId) {
       currentPictures = me.applyFilter(pictures, filterId);
       currentPage = 0;
       me.renderPictures(currentPictures, currentPage, true);
+
+      if (filterId) {
+
+        localStorage.setItem('filterId', filterId);
+      }
     },
     applyFilter: function(items, val) {
       var res;
