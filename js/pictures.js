@@ -1,8 +1,13 @@
+/*
+  global
+    $:true
+*/
 'use strict';
 var pictureTemplate = (function() {
 
   var filtersBlock;
   var picturesBlock;
+  var currentPictures;
   var template;
   var IMAGE_FAILURE_TIMEOUT = 10000;
   var REQUEST_FAILURE_TIMEOUT = 10000;
@@ -14,12 +19,19 @@ var pictureTemplate = (function() {
     'DONE': 4
   };
 
-  // one month
-  var FILTER_NEW_AMOUNT = 1 * 30 * 24 * 60 * 60 * 1000;
+  // 3 months
+  var FILTER_NEW_AMOUNT = 3 * 30 * 24 * 60 * 60 * 1000;
 
   var CASCADE_DELAY = 250;
 
+  var SCROLL_TROTTLE = 100;
+
   var PICTURE_SIZE = 182;
+
+  var PAGE_SIZE = 12;
+  var currentPage = 0;
+
+  var pictures;
 
 
   var me = {
@@ -77,25 +89,35 @@ var pictureTemplate = (function() {
       picturesBlock.classList.add('pictures-failure');
     },
     onLoadSuccess: function(data) {
-      me.renderPictures(data);
-      me.setupFilters(data);
+      pictures = data;
+
+      // setup main part
+      me.setupFilters();
+
       picturesBlock.classList.remove('pictures-loading');
       filtersBlock.classList.remove('hidden');
     },
     // main rendering function
-    renderPictures: function(data) {
+    renderPictures: function(items, pageNumber, replace) {
+      replace = typeof replace !== 'undefined' ? replace : true;
+      pageNumber = pageNumber || 0;
+
+      if (replace) {
+        picturesBlock.innerHTML = '';
+      }
 
       var frag = document.createDocumentFragment();
 
-      // clearing pictureBlock
-      picturesBlock.innerHTML = '';
+      var renderFrom = pageNumber * PAGE_SIZE;
+      var renderTo = renderFrom + PAGE_SIZE;
+      var picturesToRender = items.slice(renderFrom, renderTo);
 
-      var len = data.length;
-      var showImg = $.Deferred();
+      var len = picturesToRender.length;
+      var showImg = new $.Deferred();
 
 
       // get items
-      data.forEach(function(item) {
+      picturesToRender.forEach(function(item) {
         var rendered = me.getPictureHTML(item);
         var picImg = rendered.querySelector('img');
 
@@ -104,12 +126,12 @@ var pictureTemplate = (function() {
         me.loadImage(item.url).done(function(res) {
           // save picture on success
           item.imgData = res;
-        }).always(function(){
+        }).always(function() {
           picImg.classList.add('picture-load-failure');
 
           if (--len === 0) {
             // check if all images passed
-            showImgFlag.resolve();
+            showImg.resolve();
           }
         });
 
@@ -117,10 +139,9 @@ var pictureTemplate = (function() {
       });
 
       // when all images passed
-      showImg.done(function(){
-
+      showImg.done(function() {
         // get loaded images
-        var successLoaded = data.filter(function(item){
+        var successLoaded = picturesToRender.filter(function(item) {
           return item.hasOwnProperty('imgData');
         });
 
@@ -151,6 +172,7 @@ var pictureTemplate = (function() {
       function loadImage(deferred) {
         var img = new Image();
 
+
         var imgTimer = setTimeout(errored, IMAGE_FAILURE_TIMEOUT);
 
         img.onload = loaded;
@@ -175,7 +197,9 @@ var pictureTemplate = (function() {
         }
       }
 
-      return $.Deferred(loadImage).promise();
+      var promise = (new $.Deferred(loadImage)).promise();
+
+      return promise;
     },
     // get basic markup for one item
     getPictureHTML: function(picture) {
@@ -198,7 +222,7 @@ var pictureTemplate = (function() {
 
       return pic;
     },
-    setupFilters: function(pictures) {
+    setupFilters: function() {
       var filterForm = document.querySelector('.filters');
 
       if (!filterForm.filter) {
@@ -206,8 +230,17 @@ var pictureTemplate = (function() {
       }
 
       filterForm.addEventListener('change', function() {
-        me.renderPictures(me.applyFilter(pictures, filterForm.filter.value));
+        me.setFilter(filterForm.filter.value);
       });
+
+      // default setting
+      me.setFilter();
+      me.initScroll();
+    },
+    setFilter: function(filterId) {
+      currentPictures = me.applyFilter(pictures, filterId);
+      currentPage = 0;
+      me.renderPictures(currentPictures, currentPage, true);
     },
     applyFilter: function(items, val) {
       var res;
@@ -236,6 +269,47 @@ var pictureTemplate = (function() {
           res = items.slice(0);
       }
       return res;
+    },
+    initScroll: function() {
+      var timer;
+      var pageFillTimer;
+
+      function isAtTheBottom() {
+        var GAP = 100;
+        return picturesBlock.getBoundingClientRect().bottom - GAP <= window.innerHeight;
+      }
+
+      function isNextPageAvailable() {
+        return currentPage < Math.ceil(pictures.length / PAGE_SIZE);
+      }
+
+      function checkNextPage() {
+        if (isAtTheBottom() && isNextPageAvailable()) {
+          window.dispatchEvent(new CustomEvent('uploadpictures'));
+          return true;
+        }
+        return false;
+      }
+
+      window.addEventListener('scroll', function() {
+        clearTimeout(timer);
+        timer = setTimeout(checkNextPage, SCROLL_TROTTLE);
+      });
+
+      window.addEventListener('uploadpictures', function() {
+        me.renderPictures(currentPictures, ++currentPage, false);
+      });
+
+      // check if there is empty space
+      pageFillTimer = setTimeout(function checkWindowFill() {
+        if (checkNextPage()) {
+          pageFillTimer = setTimeout(checkWindowFill, 2000);
+        } else {
+          clearTimeout(pageFillTimer);
+        }
+      }, 2000);
+
+
     }
   };
 
