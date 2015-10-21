@@ -1,4 +1,7 @@
+'use strict';
+
 (function() {
+
   var uploadForm = document.forms['upload-select-image'];
   var resizeForm = document.forms['upload-resize'];
   var filterForm = document.forms['upload-filter'];
@@ -7,15 +10,16 @@
 
   function uploadImage(element, callback) {
     var fileReader = new FileReader();
+
     fileReader.onload = function(evt) {
       var image = evt.target.result;
       callback(image);
-    }
+    };
 
     fileReader.readAsDataURL(element.files[0]);
   }
 
-  fileElement.onchange = function(evt) {
+  fileElement.onchange = function() {
     if (fileElement.value) {
       fileElement.classList.add('upload-input-hasvalue');
     }
