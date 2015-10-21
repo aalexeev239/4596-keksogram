@@ -29,8 +29,8 @@
     overlayBlock.classList.add('invisible');
 
     // remove events
-    closeBtn.remoEventListener('click', hideGallery);
-    document.remoEventListener('keyup', onKeyUp);
+    closeBtn.removeEventListener('click', hideGallery);
+    document.removeEventListener('keyup', onKeyUp);
   }
 
 
