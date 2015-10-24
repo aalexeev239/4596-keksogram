@@ -229,6 +229,4 @@ var photos = (function() {
 
 
 // initing module
-document.addEventListener('DOMContentLoaded', function() {
-  photos.init();
-});
+photos.init();
