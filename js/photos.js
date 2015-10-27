@@ -32,6 +32,8 @@ var photos = (function() {
 
   var pictures;
 
+  var gallery = new Gallery();
+
 
   var me = {
     init: function() {
@@ -91,6 +93,9 @@ var photos = (function() {
 
       // setup main part
       me.setupFilters();
+
+      // gallery.set
+      window.addEventListener('galleryclick', onGalleryClick);
     },
     // main rendering function
     renderPictures: function(items, pageNumber, replace) {
@@ -144,10 +149,11 @@ var photos = (function() {
     setFilter: function(filterId) {
       currentPictures = me.applyFilter(pictures, filterId);
       currentPage = 0;
+      // destroy all photos in gallery
+      gallery.resetPhotos();
       me.renderPictures(currentPictures, currentPage, true);
 
       if (filterId) {
-
         localStorage.setItem('filterId', filterId);
       }
     },
@@ -221,6 +227,30 @@ var photos = (function() {
 
     }
   };
+
+  function onGalleryClick(ev) {
+    var photo = ev.detail;
+
+    // check that all is ok
+    if (!photo.isImageLoaded) {
+      return;
+    }
+
+    // recalculate currently loaded images
+    var loadedPhotos = renderedPhotos.filter(function(photo) {
+      return photo.isImageLoaded;
+    }).map(function(photo) {
+      return photo.imageUrl;
+    });
+    if (loadedPhotos.length !== gallery.getPhotosCount()) {
+      gallery.setPhotos(loadedPhotos);
+    }
+
+    gallery.setCurrentPhoto(loadedPhotos.indexOf(photo.imageUrl));
+
+    gallery.show();
+
+  }
 
 
 
