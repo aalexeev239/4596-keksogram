@@ -32,6 +32,9 @@
     this._data = data;
 
     this._onClick = this._onClick.bind(this);
+
+    this.isImageLoaded = false;
+    this.imageUrl = null;
   };
 
 
@@ -45,6 +48,7 @@
     var photoComments = newPhotoElement.querySelector('.picture-comments');
     var photoPic = newPhotoElement.querySelector('img');
 
+    var photo = this;
     var data = this._data;
 
     photoLikes.textContent = data.hasOwnProperty('likes') ? data.likes : 0;
@@ -54,6 +58,8 @@
 
     // loading image
     if (data.url) {
+      this.imageUrl = data.url;
+
       var img = new Image();
 
       var imgLoadTimeout = setTimeout(function() {
@@ -66,6 +72,7 @@
         newPhotoElement.replaceChild(img, photoPic);
         img.style.width = PICTURE_SIZE;
         img.style.hight = PICTURE_SIZE;
+        photo.isImageLoaded = true;
       };
 
       img.onerror = function() {
@@ -95,9 +102,10 @@
    * show gallery on click
    * @private
    */
-  Photo.prototype._onClick = function() {
+  Photo.prototype._onClick = function(ev) {
+    ev.preventDefault();
     if (!this._element.classList.contains('picture-load-failure')) {
-      var galleryEvent = new CustomEvent('showgallery', {detail: {photoElement: this } });
+      var galleryEvent = new CustomEvent('galleryclick', {detail: this});
       window.dispatchEvent(galleryEvent);
     }
   };
