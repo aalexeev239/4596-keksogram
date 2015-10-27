@@ -2,82 +2,182 @@
 
 (function() {
 
-  var overlayBlock = document.querySelector('.gallery-overlay');
-  var closeBtn = document.querySelector('.gallery-overlay-close');
-
-
-  var picturesBlock = document.querySelector('.pictures');
-
   var KEYCODE = {
     'ESC': 27,
     'LEFT': 37,
     'RIGHT': 39
   };
 
+  function Gallery(args) {
+    // enforces new
+    if (!(this instanceof Gallery)) {
+      return new Gallery(args);
+    }
+    // constructor body
+    this._photos = [];
+    this._currentPhoto = null;
 
-  // gallery controls
-  function showGallery() {
-    overlayBlock.classList.remove('invisible');
+    this._overlay = document.querySelector('.gallery-overlay');
+    this._imageContainer = this._overlay.querySelector('.gallery-overlay-preview');
+    this._closeBtn = this._overlay.querySelector('.gallery-overlay-close');
 
-    // attach events
-    closeBtn.addEventListener('click', hideGallery);
-    document.addEventListener('keyup', onKeyUp);
+    this._onCloseClick = this._onCloseClick.bind(this);
+    this._onKeyDown = this._onKeyDown.bind(this);
+    this._onPhotoClick = this._onPhotoClick.bind(this);
   }
 
 
-  function hideGallery() {
-    overlayBlock.classList.add('invisible');
+  /**
+   * show gallery, attach listeners
+   */
+  Gallery.prototype.show = function() {
+    this._overlay.classList.remove('invisible');
 
-    // remove events
-    closeBtn.removeEventListener('click', hideGallery);
-    document.removeEventListener('keyup', onKeyUp);
-  }
+    this._closeBtn.addEventListener('click', this._onCloseClick);
+    this._imageContainer.addEventListener('click', this._onPhotoClick);
+    document.addEventListener('keydown', this._onKeyDown);
 
-
-  function isGalleryHidden() {
-    return overlayBlock.classList.contains('invisible');
-  }
-
-  // show gallery on picture click
-  function onPictureClick(ev) {
-    var el = ev.target;
-
-    do {
-      if (el.classList.contains('picture')) {
-        ev.preventDefault();
-        showGallery();
-        break;
-      }
-      el = el.parentNode;
-    } while (el);
-  }
+    this._showCurrentPhoto();
+  };
 
 
-  function onKeyUp(ev) {
+  /**
+   * hide gallery, remove listeners
+   */
+  Gallery.prototype.hide = function() {
+    this._overlay.classList.add('invisible');
+    this._closeBtn.removeEventListener('click', this._onCloseClick);
+    this._imageContainer.removeEventListener('click', this._onPhotoClick);
+    document.removeEventListener('keydown', this._onKeyDown);
+  };
 
-    if (isGalleryHidden()) {
+
+  /**
+   * go to next image
+   * @private
+   */
+  Gallery.prototype._next = function() {
+    this._currentPhoto = this._currentPhoto < this._photos.length - 1 ? this._currentPhoto + 1 : 0;
+    this._showCurrentPhoto();
+  };
+
+
+  /**
+   * go to prev image
+   * @private
+   */
+  Gallery.prototype._prev = function() {
+    this._currentPhoto = this._currentPhoto > 0 ? this._currentPhoto - 1 : this._photos.length - 1;
+    this._showCurrentPhoto();
+  };
+
+
+  /**
+   * setting photos
+   * @param {Array} photos
+   */
+  Gallery.prototype.setPhotos = function(photos) {
+    this._photos = photos;
+  };
+
+
+  /**
+   * get current photos count
+   * @return {number}
+   */
+  Gallery.prototype.getPhotosCount = function() {
+    var len = this._photos ? this._photos.length : 0;
+    return len;
+  };
+
+
+  /**
+   * resetAllPhotos
+   * @return {[type]} [description]
+   */
+  Gallery.prototype.resetPhotos = function() {
+    this._photos = [];
+    this._currentPhoto = null;
+  };
+
+
+  /**
+   * check correct index & set current photo
+   * @param {number} index
+   */
+  Gallery.prototype.setCurrentPhoto = function(index) {
+    index = Math.min(Math.max(index, 0), this._photos.length - 1);
+
+    if (this._currentPhoto === index) {
       return;
     }
 
+    this._currentPhoto = index;
+  };
+
+  /**
+   * go to next photo
+   * @param   {Event} ev [description]
+   * @private
+   */
+  Gallery.prototype._onPhotoClick = function(ev) {
+    ev.preventDefault();
+    this._next();
+  };
+
+
+  Gallery.prototype._showCurrentPhoto = function() {
+    var img = new Image();
+    img.onload = function() {
+      this._imageContainer.innerHTML = '';
+      this._imageContainer.appendChild(img);
+    }.bind(this);
+    img.src = this._photos[this._currentPhoto];
+  };
+
+
+
+
+
+  /**
+   * click on closing button. Calls hide
+   * @param  {Event} ev
+   */
+  Gallery.prototype._onCloseClick = function(ev) {
+    ev.preventDefault();
+    this.hide();
+  };
+
+  /**
+   * keyboard listeners - close on esc, move on arrows
+   * @param   {Event} ev
+   * @private
+   */
+  Gallery.prototype._onKeyDown = function(ev) {
     switch (ev.keyCode) {
 
       case KEYCODE.ESC:
-        hideGallery();
+        this.hide();
         break;
 
       case KEYCODE.LEFT:
-        console.log('left!!!!111');
+        ev.preventDefault();
+        this._prev();
         break;
 
       case KEYCODE.RIGHT:
-        console.log('right!!!!111');
+        ev.preventDefault();
+        this._next();
         break;
 
       default:
         break;
     }
-  }
+  };
 
-  // attach listeners
-  picturesBlock.addEventListener('click', onPictureClick);
+
+
+
+  window.Gallery = Gallery;
+
 })();
