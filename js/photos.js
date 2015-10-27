@@ -1,16 +1,11 @@
 /*
   global
-    $:true
+    Photo
+    Gallery
 */
 'use strict';
-var pictureTemplate = (function() {
+var photos = (function() {
 
-  var filtersBlock;
-  var picturesBlock;
-  var currentPictures;
-  var template;
-  var IMAGE_FAILURE_TIMEOUT = 10000;
-  var REQUEST_FAILURE_TIMEOUT = 10000;
   var ReadyState = {
     'UNSENT': 0,
     'OPENED': 1,
@@ -19,19 +14,26 @@ var pictureTemplate = (function() {
     'DONE': 4
   };
 
+
+  var filtersBlock;
+  var picturesBlock;
+  var currentPictures;
+  var renderedPhotos = [];
+  var REQUEST_FAILURE_TIMEOUT = 10000;
+
+
+
   // 3 months
   var FILTER_NEW_AMOUNT = 3 * 30 * 24 * 60 * 60 * 1000;
 
-  var CASCADE_DELAY = 250;
-
   var SCROLL_TROTTLE = 100;
-
-  var PICTURE_SIZE = 182;
 
   var PAGE_SIZE = 12;
   var currentPage = 0;
 
   var pictures;
+
+  var gallery = new Gallery();
 
 
   var me = {
@@ -40,9 +42,8 @@ var pictureTemplate = (function() {
       // setting up global DOM objects
       filtersBlock = document.querySelector('.filters');
       picturesBlock = document.querySelector('.pictures');
-      template = document.getElementById('picture-template');
 
-      if (!filtersBlock || !picturesBlock || !template) {
+      if (!filtersBlock || !picturesBlock) {
         return;
       }
 
@@ -93,6 +94,9 @@ var pictureTemplate = (function() {
 
       // setup main part
       me.setupFilters();
+
+      // gallery.set
+      window.addEventListener('galleryclick', onGalleryClick);
     },
     // main rendering function
     renderPictures: function(items, pageNumber, replace) {
@@ -100,7 +104,10 @@ var pictureTemplate = (function() {
       pageNumber = pageNumber || 0;
 
       if (replace) {
-        picturesBlock.innerHTML = '';
+        var el;
+        while ((el = renderedPhotos.pop())) {
+          el.unrender();
+        }
       }
 
       var frag = document.createDocumentFragment();
@@ -109,115 +116,14 @@ var pictureTemplate = (function() {
       var renderTo = renderFrom + PAGE_SIZE;
       var picturesToRender = items.slice(renderFrom, renderTo);
 
-      var len = picturesToRender.length;
-      var showImg = new $.Deferred();
-
-
       // get items
       picturesToRender.forEach(function(item) {
-        var rendered = me.getPictureHTML(item);
-        var picImg = rendered.querySelector('img');
-
-        item.rendered = rendered;
-
-        me.loadImage(item.url).done(function(res) {
-          // save picture on success
-          item.imgData = res;
-        }).always(function() {
-          picImg.classList.add('picture-load-failure');
-
-          if (--len === 0) {
-            // check if all images passed
-            showImg.resolve();
-          }
-        });
-
-        frag.appendChild(rendered);
+        var photo = new Photo(item);
+        renderedPhotos.push(photo);
+        photo.render(frag);
       });
-
-      // when all images passed
-      showImg.done(function() {
-        // get loaded images
-        var successLoaded = picturesToRender.filter(function(item) {
-          return item.hasOwnProperty('imgData');
-        });
-
-        //  render images on timer
-        var timer = setTimeout(function cascade() {
-
-          var item = successLoaded.shift();
-
-          if (!item) {
-            clearTimeout(timer);
-          } else {
-            var elem = item.rendered;
-            var picImg = elem.querySelector('img');
-            var img = item.imgData;
-            picImg.classList.remove('picture-load-failure');
-            elem.replaceChild(img, picImg);
-            img.style.width = PICTURE_SIZE;
-            img.style.hight = PICTURE_SIZE;
-          }
-          timer = setTimeout(cascade, CASCADE_DELAY);
-        }, CASCADE_DELAY);
-      });
-
 
       picturesBlock.appendChild(frag);
-    },
-    loadImage: function(url) {
-      function loadImage(deferred) {
-        var img = new Image();
-
-
-        var imgTimer = setTimeout(errored, IMAGE_FAILURE_TIMEOUT);
-
-        img.onload = loaded;
-        img.onerror = errored;
-
-        img.src = url;
-
-        function loaded() {
-          unbindEvents();
-          deferred.resolve(img);
-        }
-
-        function errored() {
-          unbindEvents();
-          deferred.reject(img);
-        }
-
-        function unbindEvents() {
-          clearTimeout(imgTimer);
-          img.onload = null;
-          img.onerror = null;
-        }
-      }
-
-      var promise = (new $.Deferred(loadImage)).promise();
-
-      return promise;
-    },
-    // get basic markup for one item
-    getPictureHTML: function(picture) {
-
-      var pic = template.content.children[0].cloneNode(true);
-      var picLikes = pic.querySelector('.picture-likes');
-      var picComments = pic.querySelector('.picture-comments');
-
-      if (picture.hasOwnProperty('likes')) {
-        picLikes.textContent = picture.likes;
-      } else {
-        picLikes.textContent = 0;
-      }
-
-      if (picture.hasOwnProperty('comments') || picture.comments === 0) {
-        picComments.textContent = picture.comments;
-      } else {
-        picComments.textContent = 0;
-      }
-
-      return pic;
     },
     setupFilters: function() {
 
@@ -244,10 +150,11 @@ var pictureTemplate = (function() {
     setFilter: function(filterId) {
       currentPictures = me.applyFilter(pictures, filterId);
       currentPage = 0;
+      // destroy all photos in gallery
+      gallery.resetPhotos();
       me.renderPictures(currentPictures, currentPage, true);
 
       if (filterId) {
-
         localStorage.setItem('filterId', filterId);
       }
     },
@@ -322,6 +229,30 @@ var pictureTemplate = (function() {
     }
   };
 
+  function onGalleryClick(ev) {
+    var photo = ev.detail;
+
+    // check that all is ok
+    if (!photo.isImageLoaded) {
+      return;
+    }
+
+    // recalculate currently loaded images
+    var loadedPhotos = renderedPhotos.filter(function(item) {
+      return item.isImageLoaded;
+    }).map(function(item) {
+      return item.imageUrl;
+    });
+    if (loadedPhotos.length !== gallery.getPhotosCount()) {
+      gallery.setPhotos(loadedPhotos);
+    }
+
+    gallery.setCurrentPhoto(loadedPhotos.indexOf(photo.imageUrl));
+
+    gallery.show();
+
+  }
+
 
 
   return me;
@@ -329,6 +260,4 @@ var pictureTemplate = (function() {
 
 
 // initing module
-document.addEventListener('DOMContentLoaded', function() {
-  pictureTemplate.init();
-});
+photos.init();
