@@ -1,6 +1,7 @@
 /*
   global
     Photo
+    Gallery
 */
 'use strict';
 var photos = (function() {
@@ -237,10 +238,10 @@ var photos = (function() {
     }
 
     // recalculate currently loaded images
-    var loadedPhotos = renderedPhotos.filter(function(photo) {
-      return photo.isImageLoaded;
-    }).map(function(photo) {
-      return photo.imageUrl;
+    var loadedPhotos = renderedPhotos.filter(function(item) {
+      return item.isImageLoaded;
+    }).map(function(item) {
+      return item.imageUrl;
     });
     if (loadedPhotos.length !== gallery.getPhotosCount()) {
       gallery.setPhotos(loadedPhotos);
