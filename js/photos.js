@@ -54,7 +54,6 @@
 
   /**
    * block containing photos
-   * @type {[type]}
    */
   var photosBlock = document.querySelector('.pictures');
 
@@ -100,8 +99,8 @@
 
   /**
    * main rendering function. Add to exist/replace new PAGE_SIZE count of photos
-   * @param  {number} pageNumber [description]
-   * @param  {boolean} replace    [description]
+   * @param  {number} pageNumber
+   * @param  {boolean} replace
    */
   function renderPhotos(pageNumber, replace) {
     replace = replace ? true : false;

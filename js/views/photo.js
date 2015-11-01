@@ -20,7 +20,7 @@
 
   /**
    * template to render
-   * @type {[type]}
+   * @type {Element}
    */
   var template = document.getElementById('picture-template');
 

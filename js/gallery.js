@@ -107,7 +107,6 @@
 
   /**
    * resetAllPhotos
-   * @return {[type]} [description]
    */
   Gallery.prototype.resetPhotos = function() {
     this._photos.reset();
@@ -130,7 +129,7 @@
 
   /**
    * go to next photo
-   * @param   {Event} ev [description]
+   * @param {Event} ev
    * @private
    */
   Gallery.prototype._onPhotoClick = function(ev) {
