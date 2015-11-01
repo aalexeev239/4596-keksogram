@@ -1,6 +1,6 @@
 /* global
   PhotosCollection: true
-  PhotoModel: true
+  PhotoView: true
   Gallery: true
 */
 
@@ -104,8 +104,8 @@
    * @param  {boolean} replace    [description]
    */
   function renderPhotos(pageNumber, replace) {
-    var replace = replace ? true : false;
-    var pageNumber = pageNumber || 0;
+    replace = replace ? true : false;
+    pageNumber = pageNumber || 0;
     var fragment = document.createDocumentFragment();
     var photosFrom = pageNumber * PAGE_SIZE;
     var photosTo = photosFrom + PAGE_SIZE;
@@ -152,7 +152,7 @@
       filtersBlock.filter.value = filterId;
     }
 
-    filtersBlock.addEventListener('change', function(e) {
+    filtersBlock.addEventListener('change', function() {
       setFilter(filtersBlock.filter.value);
     });
 
@@ -174,7 +174,7 @@
 
     var photoList = photosFiltered.map(function(item) {
       return item.url;
-    })
+    });
     gallery.setPhotos(photoList);
 
     if (filterId) {
@@ -192,14 +192,14 @@
   function applyFilter(items, val) {
     var res;
 
-    switch(val) {
+    switch (val) {
       case 'new':
         res = items.filter(function(a) {
           var dateA = Date.parse(a.date);
           var now = Date.now();
 
           return now - dateA < FILTER_NEW_AMOUNT;
-        }).sort(function(a,b) {
+        }).sort(function(a, b) {
           var dateA = Date.parse(a.date);
           var dateB = Date.parse(b.date);
 
@@ -208,9 +208,10 @@
         break;
 
       case 'discussed':
-        res = items.sort(function(a,b) {
+        res = items.sort(function(a, b) {
           return b.comments - a.comments;
-        })
+        });
+        break;
 
       default:
         res = items.slice(0);
@@ -266,7 +267,7 @@
    * @private
    */
   function _isNextPageAvailable() {
-    return currentPage <= Math.floor(photosFiltered.length / PAGE_SIZE)
+    return currentPage <= Math.floor(photosFiltered.length / PAGE_SIZE);
   }
 
 
@@ -290,12 +291,12 @@
   filtersBlock.classList.add('hidden');
   photosBlock.classList.add('pictures-loading');
 
-  photosCollection.fetch({timeout: REQUEST_FAILURE_TIMEOUT}).success(function (loaded, state, jqXHR) {
+  photosCollection.fetch({timeout: REQUEST_FAILURE_TIMEOUT}).success(function(loaded) {
     photosLoaded = loaded;
     photosBlock.classList.remove('pictures-loading');
     initFilters();
     initPhotoRendering();
-  }).fail(function () {
+  }).fail(function() {
     photosBlock.classList.remove('pictures-loading');
     photosBlock.classList.add('pictures-failure');
   });

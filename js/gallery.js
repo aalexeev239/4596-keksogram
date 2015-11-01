@@ -23,7 +23,7 @@
   function Gallery() {
     // enforces new
     if (!(this instanceof Gallery)) {
-      return new Gallery(args);
+      return new Gallery();
     }
     // constructor body
     this._photos = new Backbone.Collection();

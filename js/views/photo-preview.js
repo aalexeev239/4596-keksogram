@@ -18,7 +18,7 @@
      * rendering
      * @override
      */
-    render: function () {
+    render: function() {
       this.el.src = this.model.get('url');
     }
   });

@@ -80,27 +80,6 @@
   });
 
 
-  /**
-   * traverse up through DOM, comparing element classlist with given class
-   * @param   {Element}  node
-   * @param   {string}  className
-   * @return  {Boolean}
-   * @private
-   */
-  function _isInClassScope(node, className) {
-    var current = node;
-    do {
-      console.log(current);
-      if (current.classList.contains(className)) {
-        return true;
-      }
-    } while (current = current.parentNode);
-    return false;
-  }
-
-
-
-
 
   /**
    * uploading Picture Helper
