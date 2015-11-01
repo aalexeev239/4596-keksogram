@@ -163,7 +163,7 @@
 
   /**
    * filter items, write filterId to localStorage
-   * @param {?string} filterId
+   * @param {string=} filterId
    */
   function setFilter(filterId) {
     photosFiltered = applyFilter(photosLoaded, filterId);
