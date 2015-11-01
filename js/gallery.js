@@ -6,13 +6,12 @@
 
   /**
    * key mappings
-   * @const
    * @enum {number}
    */
-  var KEYCODE = {
-    'ESC': 27,
-    'LEFT': 37,
-    'RIGHT': 39
+  var Keycode = {
+    'esc': 27,
+    'left': 37,
+    'right': 39
   };
 
 
@@ -175,16 +174,16 @@
   Gallery.prototype._onKeyDown = function(ev) {
     switch (ev.keyCode) {
 
-      case KEYCODE.ESC:
+      case Keycode.esc:
         this.hide();
         break;
 
-      case KEYCODE.LEFT:
+      case Keycode.left:
         ev.preventDefault();
         this._prev();
         break;
 
-      case KEYCODE.RIGHT:
+      case Keycode.right:
         ev.preventDefault();
         this._next();
         break;
