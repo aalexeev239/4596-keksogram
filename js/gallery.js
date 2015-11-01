@@ -148,7 +148,6 @@
 
     var img = new PhotoPreview({ model: this._photos.at(this._currentPhoto)});
     img.render();
-    console.log(img.el);
     this._imageContainer.appendChild(img.el);
   };
 
