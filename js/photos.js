@@ -1,8 +1,4 @@
-/*
-  global
-    Photo
-    Gallery
-*/
+/* global PhotosCollection: true PhotoView: true Gallery */
 'use strict';
 var photos = (function() {
 
@@ -18,7 +14,7 @@ var photos = (function() {
   var filtersBlock;
   var picturesBlock;
   var currentPictures;
-  var renderedPhotos = [];
+  var renderedViews = [];
   var REQUEST_FAILURE_TIMEOUT = 10000;
 
 
@@ -34,6 +30,7 @@ var photos = (function() {
   var pictures;
 
   var gallery = new Gallery();
+  var photosCollection = new PhotosCollection();
 
 
   var me = {
@@ -47,12 +44,17 @@ var photos = (function() {
         return;
       }
 
-
       filtersBlock.classList.add('hidden');
 
       // load pictures
       picturesBlock.classList.add('pictures-loading');
-      this.loadData(this.onLoadSuccess, this.onLoadFailure);
+      // this.loadData(this.onLoadSuccess, this.onLoadFailure);
+      photosCollection.fetch({timeout: REQUEST_FAILURE_TIMEOUT}).success(function (loaded, state, jqXHR) {
+        pictures = jqXHR.responseJSON;
+        me.setupFilters();
+      }).fail(function () {
+        me.onLoadFailure();
+      });
     },
     loadData: function(success, failure) {
 
@@ -99,14 +101,16 @@ var photos = (function() {
       window.addEventListener('galleryclick', onGalleryClick);
     },
     // main rendering function
-    renderPictures: function(items, pageNumber, replace) {
+    renderPictures: function(pageNumber, replace) {
       replace = typeof replace !== 'undefined' ? replace : true;
       pageNumber = pageNumber || 0;
 
       if (replace) {
-        var el;
-        while ((el = renderedPhotos.pop())) {
-          el.unrender();
+        while (renderedViews.length) {
+          var viewToRemove = renderedViews.shift();
+          picturesBlock.removeChild(viewToRemove.el);
+          viewToRemove.off('galleryclick');
+          viewToRemove.remove();
         }
       }
 
@@ -114,13 +118,18 @@ var photos = (function() {
 
       var renderFrom = pageNumber * PAGE_SIZE;
       var renderTo = renderFrom + PAGE_SIZE;
-      var picturesToRender = items.slice(renderFrom, renderTo);
+      // var picturesToRender = items.slice(renderFrom, renderTo);
 
-      // get items
-      picturesToRender.forEach(function(item) {
-        var photo = new Photo(item);
-        renderedPhotos.push(photo);
-        photo.render(frag);
+      photosCollection.slice(renderFrom, renderTo).forEach(function(model) {
+        var view = new PhotoView({model: model});
+
+        view.render();
+        frag.appendChild(view.el);
+        renderedViews.push(view);
+
+        view.on('galleryclick', function() {
+
+        });
       });
 
       picturesBlock.appendChild(frag);
@@ -152,7 +161,9 @@ var photos = (function() {
       currentPage = 0;
       // destroy all photos in gallery
       gallery.resetPhotos();
-      me.renderPictures(currentPictures, currentPage, true);
+
+      photosCollection.reset(currentPictures);
+      me.renderPictures(currentPage, true);
 
       if (filterId) {
         localStorage.setItem('filterId', filterId);
@@ -187,6 +198,9 @@ var photos = (function() {
       return res;
     },
     initScroll: function() {
+
+
+
       var timer;
       var pageFillTimer;
 
@@ -238,7 +252,7 @@ var photos = (function() {
     }
 
     // recalculate currently loaded images
-    var loadedPhotos = renderedPhotos.filter(function(item) {
+    var loadedPhotos = renderedViews.filter(function(item) {
       return item.isImageLoaded;
     }).map(function(item) {
       return item.imageUrl;

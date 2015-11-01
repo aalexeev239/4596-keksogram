@@ -1,20 +1,32 @@
+/* global PhotoPreview:true */
+
 'use strict';
 
 (function() {
 
+  /**
+   * key mappings
+   * @const
+   * @enum {number}
+   */
   var KEYCODE = {
     'ESC': 27,
     'LEFT': 37,
     'RIGHT': 39
   };
 
-  function Gallery(args) {
+
+  /**
+   * [Gallery description]
+   * @constructor
+   */
+  function Gallery() {
     // enforces new
     if (!(this instanceof Gallery)) {
       return new Gallery(args);
     }
     // constructor body
-    this._photos = [];
+    this._photos = new Backbone.Collection();
     this._currentPhoto = null;
 
     this._overlay = document.querySelector('.gallery-overlay');
@@ -77,7 +89,11 @@
    * @param {Array} photos
    */
   Gallery.prototype.setPhotos = function(photos) {
-    this._photos = photos;
+    this._photos.reset(photos.map(function(photoSrc) {
+      return new Backbone.Model({
+        url: photoSrc
+      });
+    }));
   };
 
 
@@ -96,8 +112,7 @@
    * @return {[type]} [description]
    */
   Gallery.prototype.resetPhotos = function() {
-    this._photos = [];
-    this._currentPhoto = null;
+    this._photos.reset();
   };
 
 
@@ -126,13 +141,17 @@
   };
 
 
+  /**
+   * showing photo
+   * @private
+   */
   Gallery.prototype._showCurrentPhoto = function() {
-    var img = new Image();
-    img.onload = function() {
-      this._imageContainer.innerHTML = '';
-      this._imageContainer.appendChild(img);
-    }.bind(this);
-    img.src = this._photos[this._currentPhoto];
+    this._imageContainer.innerHTML = '';
+
+    var img = new PhotoPreview({ model: this._photos.at(this._currentPhoto)});
+    img.render();
+    console.log(img.el);
+    this._imageContainer.appendChild(img.el);
   };
 
 

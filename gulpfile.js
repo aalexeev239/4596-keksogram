@@ -14,6 +14,6 @@ gulp.task('browser-sync', function() {
 });
 
 gulp.task('default', ['browser-sync'], function() {
-  gulp.watch(['js/**.js'], ['js-watch']);
+  gulp.watch(['js/**/*.js'], ['js-watch']);
   gulp.watch(['*.html'], browserSync.reload);
 });
