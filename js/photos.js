@@ -262,7 +262,7 @@
 
   /**
    * check if we can load render more photos
-   * @return  {Boolean} [description]
+   * @return  {boolean}
    * @private
    */
   function _isNextPageAvailable() {
@@ -272,7 +272,7 @@
 
   /**
    * fire the event since we reached the bottom and can load photos
-   * @return  {[type]} [description]
+   * @return  {boolean}
    * @private
    */
   function _checkNextPage() {
