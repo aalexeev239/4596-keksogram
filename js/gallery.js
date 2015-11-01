@@ -16,7 +16,6 @@
 
 
   /**
-   * [Gallery description]
    * @constructor
    */
   function Gallery() {
