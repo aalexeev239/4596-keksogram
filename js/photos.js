@@ -223,7 +223,6 @@
 
   /**
    * check empty space and trigger rendering if possible
-   * @return {[type]} [description]
    */
   function initPhotoRendering() {
 
