@@ -24,6 +24,10 @@
    */
   var PhotoView = Backbone.View.extend({
 
+    /**
+     * @type {string}
+     * @override
+     */
     template: _.template(
       '<img src="" width="182" height="182">' +
       '<span class="picture-stats"><span class="picture-stat picture-comments"><%= comments %></span>' +
