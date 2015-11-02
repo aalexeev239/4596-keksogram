@@ -64,21 +64,30 @@
 
 
   /**
-   * go to next image
+   * go to next image. If image is not currently loaded, go to next
    * @private
    */
   Gallery.prototype._next = function() {
-    this._currentPhoto = this._currentPhoto < this._length - 1 ? this._currentPhoto + 1 : 0;
+    var model;
+    do {
+      this._currentPhoto = this._currentPhoto < this._length - 1 ? this._currentPhoto + 1 : 0;
+      model = this._photos.at(this._currentPhoto);
+    } while (!model.get('imageLoaded'));
+
     this._showCurrentPhoto();
   };
 
 
   /**
-   * go to prev image
+   * go to prev image. If image is not currently loaded, go to prev
    * @private
    */
   Gallery.prototype._prev = function() {
-    this._currentPhoto = this._currentPhoto > 0 ? this._currentPhoto - 1 : this._length - 1;
+    var model;
+    do {
+      this._currentPhoto = this._currentPhoto > 0 ? this._currentPhoto - 1 : this._length - 1;
+      model = this._photos.at(this._currentPhoto);
+    } while (!model.get('imageLoaded'));
     this._showCurrentPhoto();
   };
 

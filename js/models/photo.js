@@ -18,6 +18,12 @@
     },
 
     /**
+     * check if image was loaded
+     * @type {boolean}
+     */
+    imageLoaded: false,
+
+    /**
      * like
      */
     like: function() {

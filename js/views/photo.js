@@ -129,6 +129,8 @@
 
       this._cleanupImageListeners(img);
 
+      this.model.set({imageLoaded: true});
+
       currentImg.parentNode.replaceChild(img, currentImg);
       img.style.width = PICTURE_SIZE;
       img.style.hight = PICTURE_SIZE;
@@ -158,7 +160,6 @@
       img.removeEventListener('error', this._onImageFailed);
       img.removeEventListener('abort', this._onImageFailed);
     },
-
 
 
     _onModelLike: function() {
