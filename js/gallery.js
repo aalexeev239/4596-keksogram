@@ -103,16 +103,6 @@
 
 
   /**
-   * get current photos count
-   * @return {number}
-   */
-  Gallery.prototype.getPhotosCount = function() {
-    var len = this._photos ? this._photos.length : 0;
-
-  };
-
-
-  /**
    * check correct index & set current photo
    * @param {number} index
    */
