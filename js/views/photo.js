@@ -10,6 +10,7 @@
    */
   var REQUEST_FAILURE_TIMEOUT = 10000;
 
+
   /**
    * @const
    * @type {number}
@@ -18,16 +19,15 @@
 
 
   /**
-   * template to render
-   * @type {Element}
-   */
-  var template = document.getElementById('picture-template');
-
-  /**
    * @constructor
    * @extends {Backbone.View}
    */
   var PhotoView = Backbone.View.extend({
+
+    template: _.template(
+      '<img src="" width="182" height="182">' +
+      '<span class="picture-stats"><span class="picture-stat picture-comments"><%= comments %></span>' +
+      '<span class="picture-stat picture-likes"><%= likes %></span></span>'),
 
     /**
      * @override
@@ -57,13 +57,8 @@
       this._onImageLoaded = this._onImageLoaded.bind(this);
       this._onImageFailed = this._onImageFailed.bind(this);
 
+      this.el.innerHTML = this.template(this.model.attributes);
 
-      this.el.appendChild(template.content.cloneNode(true));
-      this.el.querySelector('.picture-likes').textContent = this.model.get('likes');
-      this.el.querySelector('.picture-comments').textContent = this.model.get('comments');
-      this.el.querySelector('img');
-
-      // _uploadPicture(this.model.get('url'), this.el.querySelector('img'));
       if (this.model.get('url')) {
         var img = new Image();
 
