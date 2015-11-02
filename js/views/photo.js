@@ -37,7 +37,12 @@
      * @override
      */
     initialize: function() {
+      this._onImageLoaded = this._onImageLoaded.bind(this);
+      this._onImageFailed = this._onImageFailed.bind(this);
+      this._onModelLike = this._onModelLike.bind(this);
       this._onClick = this._onClick.bind(this);
+
+      this.model.on('change:liked', this._onModelLike);
     },
     /**
      * rendering tag
@@ -58,8 +63,6 @@
      * @override
      */
     render: function() {
-      this._onImageLoaded = this._onImageLoaded.bind(this);
-      this._onImageFailed = this._onImageFailed.bind(this);
 
       this.el.innerHTML = this.template(this.model.attributes);
 
@@ -89,11 +92,24 @@
 
 
     /**
-     * click handler, triggering 'galleryclick' event
+     * click handler, check if like btn was pressed, otherwise trigger 'galleryclick' event
      * @param   {MouseEvent} ev
      * @private
      */
-    _onClick: function() {
+    _onClick: function(ev) {
+      var target = ev.target;
+
+      // if clicked on like toggle like and stop evaluating
+      if (target.classList.contains('picture-likes')) {
+        if (this.model.get('liked')) {
+          this.model.dislike();
+        } else {
+          this.model.like();
+        }
+        return false;
+      }
+
+      // picture-likes
       if (!this.el.classList.contains('picture-load-failure')) {
         this.trigger('galleryclick');
       }
@@ -141,6 +157,17 @@
       img.removeEventListener('load', this._onImageLoaded);
       img.removeEventListener('error', this._onImageFailed);
       img.removeEventListener('abort', this._onImageFailed);
+    },
+
+
+
+    _onModelLike: function() {
+      var likeBtn = this.el.querySelector('.picture-likes');
+
+      if (likeBtn) {
+        var currentVal = parseInt(likeBtn.textContent, 10);
+        likeBtn.textContent = this.model.get('liked') ? currentVal + 1 : currentVal - 1;
+      }
     }
   });
 
