@@ -18,6 +18,14 @@
   var PICTURE_SIZE = 182;
 
 
+
+  /**
+   * template string
+   * @type {string}
+   */
+  var templateString = document.getElementById('picture-template').textContent;
+
+
   /**
    * @constructor
    * @extends {Backbone.View}
@@ -28,10 +36,7 @@
      * @type {string}
      * @override
      */
-    template: _.template(
-      '<img src="" width="182" height="182">' +
-      '<span class="picture-stats"><span class="picture-stat picture-comments"><%= comments %></span>' +
-      '<span class="picture-stat picture-likes"><%= likes %></span></span>'),
+    template: _.template(templateString),
 
     /**
      * @override
