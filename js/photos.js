@@ -170,11 +170,7 @@
     currentPage = 0;
     renderPhotos(currentPage, true);
 
-
-    var photoList = photosFiltered.map(function(item) {
-      return item.url;
-    });
-    gallery.setPhotos(photoList);
+    gallery.setPhotos(photosCollection);
 
     if (filterId) {
       localStorage.setItem('filterId', filterId);

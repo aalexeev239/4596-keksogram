@@ -25,6 +25,7 @@
     }
     // constructor body
     this._photos = new Backbone.Collection();
+    this._length = 0;
     this._currentPhoto = null;
 
     this._overlay = document.querySelector('.gallery-overlay');
@@ -67,7 +68,7 @@
    * @private
    */
   Gallery.prototype._next = function() {
-    this._currentPhoto = this._currentPhoto < this._photos.length - 1 ? this._currentPhoto + 1 : 0;
+    this._currentPhoto = this._currentPhoto < this._length - 1 ? this._currentPhoto + 1 : 0;
     this._showCurrentPhoto();
   };
 
@@ -77,7 +78,7 @@
    * @private
    */
   Gallery.prototype._prev = function() {
-    this._currentPhoto = this._currentPhoto > 0 ? this._currentPhoto - 1 : this._photos.length - 1;
+    this._currentPhoto = this._currentPhoto > 0 ? this._currentPhoto - 1 : this._length - 1;
     this._showCurrentPhoto();
   };
 
@@ -87,11 +88,8 @@
    * @param {Array} photos
    */
   Gallery.prototype.setPhotos = function(photos) {
-    this._photos.reset(photos.map(function(photoSrc) {
-      return new Backbone.Model({
-        url: photoSrc
-      });
-    }));
+    this._photos = photos;
+    this._length = photos.length;
   };
 
 
@@ -101,15 +99,7 @@
    */
   Gallery.prototype.getPhotosCount = function() {
     var len = this._photos ? this._photos.length : 0;
-    return len;
-  };
 
-
-  /**
-   * resetAllPhotos
-   */
-  Gallery.prototype.resetPhotos = function() {
-    this._photos.reset();
   };
 
 
