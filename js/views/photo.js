@@ -134,8 +134,6 @@
 
       this._cleanupImageListeners(img);
 
-      this.model.set({imageLoaded: true});
-
       currentImg.parentNode.replaceChild(img, currentImg);
       img.style.width = PICTURE_SIZE;
       img.style.hight = PICTURE_SIZE;
@@ -167,6 +165,10 @@
     },
 
 
+    /**
+     * update likes count
+     * @private
+     */
     _onModelLike: function() {
       var likeBtn = this.el.querySelector('.picture-likes');
 

@@ -82,6 +82,14 @@
   </span>
 </script>
 
+<script type="text/template" id="gallery-preview-template" charset="utf-8">
+  <img src="<%= url %>" class="gallery-overlay-image" alt="" />
+  <div class="gallery-overlay-controls">
+    <div class="gallery-overlay-controls-like">Нравится <span class="likes-count"><%= likes %></span></div>
+    <div class="gallery-overlay-controls-comments"><span class="comments-count"><%= comments %></span> комментариев</div>
+  </div>
+</script>
+
 <script src="lib/cookies.js" charset="utf-8"></script>
 <script src="lib/jquery-2.1.4.min.js" charset="utf-8"></script>
 <script src="lib/underscore-min.js" charset="utf-8"></script>

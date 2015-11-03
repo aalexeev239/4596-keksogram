@@ -45,7 +45,6 @@
     this._overlay.classList.remove('invisible');
 
     this._closeBtn.addEventListener('click', this._onCloseClick);
-    this._imageContainer.addEventListener('click', this._onPhotoClick);
     document.addEventListener('keydown', this._onKeyDown);
 
     this._showCurrentPhoto();
@@ -68,12 +67,7 @@
    * @private
    */
   Gallery.prototype._next = function() {
-    var model;
-    do {
-      this._currentPhoto = this._currentPhoto < this._length - 1 ? this._currentPhoto + 1 : 0;
-      model = this._photos.at(this._currentPhoto);
-    } while (!model.get('imageLoaded'));
-
+    this._currentPhoto = this._currentPhoto < this._length - 1 ? this._currentPhoto + 1 : 0;
     this._showCurrentPhoto();
   };
 
@@ -83,11 +77,7 @@
    * @private
    */
   Gallery.prototype._prev = function() {
-    var model;
-    do {
-      this._currentPhoto = this._currentPhoto > 0 ? this._currentPhoto - 1 : this._length - 1;
-      model = this._photos.at(this._currentPhoto);
-    } while (!model.get('imageLoaded'));
+    this._currentPhoto = this._currentPhoto > 0 ? this._currentPhoto - 1 : this._length - 1;
     this._showCurrentPhoto();
   };
 
@@ -132,11 +122,14 @@
    * @private
    */
   Gallery.prototype._showCurrentPhoto = function() {
-    this._imageContainer.innerHTML = '';
+    this._imageContainer.removeEventListener('click', this._onPhotoClick);
 
-    var img = new PhotoPreview({ model: this._photos.at(this._currentPhoto)});
-    img.render();
-    this._imageContainer.appendChild(img.el);
+    var preview = new PhotoPreview({ model: this._photos.at(this._currentPhoto)});
+    preview.render();
+
+    this._imageContainer.parentNode.replaceChild(preview.el, this._imageContainer);
+    this._imageContainer = preview.el;
+    this._imageContainer.addEventListener('click', this._onPhotoClick);
   };
 
 
