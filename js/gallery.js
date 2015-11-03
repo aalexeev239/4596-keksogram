@@ -19,11 +19,6 @@
    * @constructor
    */
   function Gallery() {
-    // enforces new
-    if (!(this instanceof Gallery)) {
-      return new Gallery();
-    }
-    // constructor body
     this._photos = new Backbone.Collection();
     this._length = 0;
     this._currentPhoto = null;
@@ -43,8 +38,8 @@
    */
   Gallery.prototype.show = function() {
     this._overlay.classList.remove('invisible');
-
     this._closeBtn.addEventListener('click', this._onCloseClick);
+    this._imageContainer.addEventListener('click', this._onPhotoClick);
     document.addEventListener('keydown', this._onKeyDown);
 
     this._showCurrentPhoto();
@@ -133,9 +128,6 @@
   };
 
 
-
-
-
   /**
    * click on closing button. Calls hide
    * @param  {Event} ev
@@ -144,6 +136,7 @@
     ev.preventDefault();
     this.hide();
   };
+
 
   /**
    * keyboard listeners - close on esc, move on arrows
