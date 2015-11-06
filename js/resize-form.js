@@ -57,7 +57,7 @@
   }
 
 
-  resizeX.addEventListener('input', function() {
+  resizeX.addEventListener('change', function() {
     currentValue.x = parseInt(resizeX.value) || 0;
 
     var normValue = normalize(currentValue);
@@ -69,7 +69,7 @@
   });
 
 
-  resizeY.addEventListener('input', function() {
+  resizeY.addEventListener('change', function() {
     currentValue.y = parseInt(resizeY.value) || 0;
 
     var normValue = normalize(currentValue);
@@ -81,7 +81,7 @@
   });
 
 
-  resizeSide.addEventListener('input', function() {
+  resizeSide.addEventListener('change', function() {
     var newValue = parseInt(resizeSide.value) || 0;
     newValue = Math.max(1, Math.min(newValue, resizer.size.width, resizer.size.height))
     var diff = currentValue.side - newValue;
