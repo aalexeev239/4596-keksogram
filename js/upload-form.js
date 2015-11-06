@@ -30,7 +30,7 @@
 
     uploadImage(fileElement, function(image) {
       sessionStorage.setItem('uploaded-image', image);
-      localStorage.setItem('uploaded-image', image);
+      // localStorage.setItem('uploaded-image', image);
       resizer = new Resizer(image);
       resizer.setElement(resizeForm);
       // resizeForm.querySelector('.resize-image-preview').src = image;
@@ -46,12 +46,12 @@
     fileElement.classList.remove('upload-input-hasvalue');
   };
 
-  var img = localStorage.getItem('uploaded-image');
-  if (img) {
-    resizer = new Resizer(img);
-    resizer.setElement(resizeForm);
-    uploadForm.classList.add('invisible');
-    resizeForm.classList.remove('invisible');
-  }
+  // var img = localStorage.getItem('uploaded-image');
+  // if (img) {
+  //   resizer = new Resizer(img);
+  //   resizer.setElement(resizeForm);
+  //   uploadForm.classList.add('invisible');
+  //   resizeForm.classList.remove('invisible');
+  // }
 
 })();
