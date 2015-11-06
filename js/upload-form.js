@@ -30,15 +30,28 @@
 
     uploadImage(fileElement, function(image) {
       sessionStorage.setItem('uploaded-image', image);
-      resizeForm.querySelector('.resize-image-preview').src = image;
-      filterForm.querySelector('.filter-image-preview').src = image;
+      localStorage.setItem('uploaded-image', image);
+      resizer = new Resizer(image);
+      resizer.setElement(resizeForm);
+      // resizeForm.querySelector('.resize-image-preview').src = image;
+      // filterForm.querySelector('.filter-image-preview').src = image;
 
       uploadForm.classList.add('invisible');
       resizeForm.classList.remove('invisible');
     });
   };
 
+
   uploadForm.onreset = function() {
     fileElement.classList.remove('upload-input-hasvalue');
   };
+
+  var img = localStorage.getItem('uploaded-image');
+  if (img) {
+    resizer = new Resizer(img);
+    resizer.setElement(resizeForm);
+    uploadForm.classList.add('invisible');
+    resizeForm.classList.remove('invisible');
+  }
+
 })();
