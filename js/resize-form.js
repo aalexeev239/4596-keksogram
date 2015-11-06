@@ -38,18 +38,20 @@
     var key = window.event.keyCode;
     var isShift = !!window.event.shiftKey;
 
-    if (key !== Keycode.up && key !== Keycode.down && !isShift) {
+    if (key !== Keycode.up && key !== Keycode.down) {
       return;
     }
+
+
 
     var target = ev.target;
     var val = parseInt(target.value) || 0;
 
-    if (key === Keycode.up) {
+    if (key === Keycode.up && isShift) {
       target.value = val + 9;
     }
 
-    if (key === Keycode.down) {
+    if (key === Keycode.down && isShift) {
       target.value = val - 9;
     }
   }
