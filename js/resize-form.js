@@ -1,7 +1,22 @@
+/* global resizer: true */
+
 'use strict';
 
 (function() {
+
+
+  /**
+   * Throttle resizer handler
+   * @type {number}
+   */
   var THROTTLE = 10;
+
+
+  /**
+   * timer for throttling
+   */
+  var timer;
+
 
   /**
    * key mappings
@@ -13,36 +28,83 @@
   };
 
 
+  /**
+   * @type {Element}
+   */
   var uploadForm = document.forms['upload-select-image'];
+
+
+  /**
+   * @type {Element}
+   */
   var resizeForm = document.forms['upload-resize'];
+
+
+  /**
+   * @type {Element}
+   */
   var filterForm = document.forms['upload-filter'];
 
+
+  /**
+   * @type {Element}
+   */
   var previewImage = resizeForm.querySelector('.resize-image-preview');
+
+
+  /**
+   * @type {Element}
+   */
   var prevButton = resizeForm['resize-prev'];
 
+
+  /**
+   * resize controls
+   * @type {Element}
+   */
   var resizeX = document.getElementById('resize-x');
+
+
+  /**
+   * resize controls
+   * @type {Element}
+   */
   var resizeY = document.getElementById('resize-y');
+
+
+  /**
+   * resize controls
+   * @type {Element}
+   */
   var resizeSide = document.getElementById('resize-size');
 
-  var currentValue = {
+
+  /**
+   * helper containing current controls values
+   * @enum {number}
+   */
+  var _currentValue = {
     x: 0,
     y: 0,
     size: 1
   };
 
-  resizeX.addEventListener('keydown', shiftBoost);
-  resizeY.addEventListener('keydown', shiftBoost);
-  resizeSide.addEventListener('keydown', shiftBoost);
 
-  function shiftBoost(ev) {
+
+  /**
+   * detect if shift key was pressed
+   * and increase/decrease control value by 10
+   * @param   {Event} ev
+   * @return  {[type]}
+   * @private
+   */
+  function _shiftBoost(ev) {
     var key = window.event.keyCode;
     var isShift = !!window.event.shiftKey;
 
     if (key !== Keycode.UP && key !== Keycode.DOWN) {
       return;
     }
-
-
 
     var target = ev.target;
     var val = parseInt(target.value) || 0;
@@ -57,87 +119,60 @@
   }
 
 
-  resizeX.addEventListener('change', function() {
-    currentValue.x = parseInt(resizeX.value) || 0;
+  /**
+   * set correct values of resizeX or resizeY and apply them to resizer
+   * @private
+   */
+  function _onResizeOffsetChanged() {
+    _currentValue.x = parseInt(resizeX.value, 10) || 0;
+    _currentValue.y = parseInt(resizeY.value, 10) || 0;
 
-    var normValue = normalize(currentValue);
+    var normValue = _normalize(_currentValue);
     if (normValue) {
-      setCurrentValue(normValue);
+      _setCurrentValue(normValue);
     }
-
-    resizer.setConstraint(currentValue.x, currentValue.y, currentValue.side);
-  });
-
-
-  resizeY.addEventListener('change', function() {
-    currentValue.y = parseInt(resizeY.value) || 0;
-
-    var normValue = normalize(currentValue);
-    if (normValue) {
-      setCurrentValue(normValue);
-    }
-
-    resizer.setConstraint(currentValue.x, currentValue.y, currentValue.side);
-  });
+    resizer.setConstraint(_currentValue.x, _currentValue.y, _currentValue.side);
+  }
 
 
-  resizeSide.addEventListener('change', function() {
-    var newValue = parseInt(resizeSide.value) || 0;
-    newValue = Math.max(1, Math.min(newValue, resizer.size.width, resizer.size.height))
-    var diff = currentValue.side - newValue;
+  /**
+   * set correct values of all controls when side controls changes and apply them to resizer
+   * @private
+   */
+  function _onResizeSideChanged() {
+    var newValue = parseInt(resizeSide.value, 10) || 0;
+    // 1 ≤ newVAlue ≤ (width, height)
+    newValue = Math.max(1, Math.min(newValue, resizer.size.width, resizer.size.height));
+
+    // if value haven't changed just set the correct to control, otherwise move the resizer
+    var diff = _currentValue.side - newValue;
     if (diff === 0) {
       resizeSide.value = newValue;
       return;
     }
-    currentValue.side = newValue;
-    currentValue.x += diff/2;
-    currentValue.y += diff/2;
 
-    var normValue = normalize(currentValue);
+    _currentValue.side = newValue;
+    _currentValue.x += diff / 2;
+    _currentValue.y += diff / 2;
+
+    var normValue = _normalize(_currentValue);
     if (normValue) {
-      setCurrentValue(normValue);
+      _setCurrentValue(normValue);
     }
 
-    resizer.setConstraint(currentValue.x, currentValue.y, currentValue.side);
-  });
+    resizer.setConstraint(_currentValue.x, _currentValue.y, _currentValue.side);
+  }
 
 
-  var timer;
-
-  prevButton.onclick = function(evt) {
-    evt.preventDefault();
-
-    resizeForm.reset();
-    uploadForm.reset();
-    resizeForm.classList.add('invisible');
-    uploadForm.classList.remove('invisible');
-  };
-
-  resizeForm.onsubmit = function(evt) {
-    evt.preventDefault();
-    var res = resizer.exportImage();
-    filterForm.elements['filter-image-src'].value = res.src;
-    filterForm.querySelector('.filter-image-preview').src = res.src;
-
-    resizeForm.classList.add('invisible');
-    filterForm.classList.remove('invisible');
-  };
-
-
-  window.addEventListener('resizerchange', function() {
-    clearTimeout(timer)
-    timer = setTimeout(function() {
-      var currentConstraint = resizer.getConstraint();
-      var normConstraint = normalize(currentConstraint);
-      if (normConstraint) {
-        resizer.setConstraint(normConstraint.x, normConstraint.y, normConstraint.side);
-      } else {
-        setCurrentValue(currentConstraint);
-      }
-    }, THROTTLE);
-  });
-
-  function normalize(val) {
+  /**
+   * normalize both values from controls and resizer
+   * returns false uf value is good
+   * returns corrected value if value is bed
+   * @param   {@enum} val
+   * @return  {(@enum|boolean)}
+   * @private
+   */
+  function _normalize(val) {
     var flag = false;
 
     if (val.side < 1) {
@@ -178,10 +213,60 @@
   }
 
 
-  function setCurrentValue(val) {
-    resizeX.value = Math.ceil(currentValue.x = val.x);
-    resizeY.value = Math.ceil(currentValue.y = val.y);
-    resizeSide.value = Math.ceil(currentValue.side = val.side);
+  /**
+   * set _currentValue to form controls
+   * @param   {@enum} val
+   * @private
+   */
+  function _setCurrentValue(val) {
+    _currentValue.x = val.x;
+    _currentValue.y = val.y;
+    _currentValue.side = val.side;
+    resizeX.value = Math.ceil(_currentValue.x);
+    resizeY.value = Math.ceil(_currentValue.y);
+    resizeSide.value = Math.ceil(_currentValue.side);
   }
 
+
+  // attach listeners
+  resizeX.addEventListener('keydown', _shiftBoost);
+  resizeY.addEventListener('keydown', _shiftBoost);
+  resizeSide.addEventListener('keydown', _shiftBoost);
+  resizeX.addEventListener('change', _onResizeOffsetChanged);
+  resizeY.addEventListener('change', _onResizeOffsetChanged);
+  resizeSide.addEventListener('change', _onResizeSideChanged);
+
+
+  prevButton.onclick = function(evt) {
+    evt.preventDefault();
+
+    resizeForm.reset();
+    uploadForm.reset();
+    resizeForm.classList.add('invisible');
+    uploadForm.classList.remove('invisible');
+  };
+
+  resizeForm.onsubmit = function(evt) {
+    evt.preventDefault();
+    var res = resizer.exportImage();
+    filterForm.elements['filter-image-src'].value = res.src;
+    previewImage.src = res.src;
+
+    resizeForm.classList.add('invisible');
+    filterForm.classList.remove('invisible');
+  };
+
+
+  window.addEventListener('resizerchange', function() {
+    clearTimeout(timer);
+    timer = setTimeout(function() {
+      var currentConstraint = resizer.getConstraint();
+      var normConstraint = _normalize(currentConstraint);
+      if (normConstraint) {
+        resizer.setConstraint(normConstraint.x, normConstraint.y, normConstraint.side);
+      } else {
+        _setCurrentValue(currentConstraint);
+      }
+    }, THROTTLE);
+  });
 })();
