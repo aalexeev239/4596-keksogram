@@ -107,13 +107,11 @@
       // Отрисовка прямоугольника, обозначающего область изображения после
       // кадрирования. Координаты задаются от центра.
       this._ctx.strokeStyle = '#FFE753';
-      this._ctx.lineWidth = 6;
       this._ctx.setLineDash([15, 10]);
-      this._ctx.strokeRect(
-        - this._resizeConstraint.side / 2,
-        - this._resizeConstraint.side / 2,
-         this._resizeConstraint.side,
-         this._resizeConstraint.side);
+      this._ctx.lineWidth = 6;
+
+      var halfside = Math.round(this._resizeConstraint.side / 2);
+      this._ctx.strokeRect(-halfside - 3, -halfside - 3, this._resizeConstraint.side + 6, this._resizeConstraint.side + 6);
 
       // Восстановление состояния канваса, которое было до вызова ctx.save
       // и последующего изменения системы координат. Нужно для того, чтобы
@@ -271,8 +269,8 @@
 
       // Получаем ImageData из области изначального изображения.
       var imageData = this._ctx.getImageData(
-          this._resizeConstraint.x,
-          this._resizeConstraint.y,
+          Math.floor(this._container.width / 2 - this._resizeConstraint.side / 2),
+          Math.floor(this._container.height / 2 - this._resizeConstraint.side / 2),
           this._resizeConstraint.side,
           this._resizeConstraint.side);
 
