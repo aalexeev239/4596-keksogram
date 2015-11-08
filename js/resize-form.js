@@ -107,7 +107,7 @@
     }
 
     var target = ev.target;
-    var val = parseInt(target.value) || 0;
+    var val = parseInt(target.value, 10) || 0;
 
     if (key === Keycode.UP && isShift) {
       target.value = val + 9;
