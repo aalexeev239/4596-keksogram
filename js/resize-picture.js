@@ -14,7 +14,7 @@
     this._container = document.createElement('canvas');
     this._ctx = this._container.getContext('2d');
 
-    // информация о размере
+    // Размеры холста
     this.size = {
       width: 0,
       height: 0
