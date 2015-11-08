@@ -9,9 +9,9 @@
    * @enum {number}
    */
   var Keycode = {
-    'esc': 27,
-    'left': 37,
-    'right': 39
+    'ESC': 27,
+    'LEFT': 37,
+    'RIGHT': 39
   };
 
 
@@ -146,16 +146,16 @@
   Gallery.prototype._onKeyDown = function(ev) {
     switch (ev.keyCode) {
 
-      case Keycode.esc:
+      case Keycode.ESC:
         this.hide();
         break;
 
-      case Keycode.left:
+      case Keycode.LEFT:
         ev.preventDefault();
         this._prev();
         break;
 
-      case Keycode.right:
+      case Keycode.RIGHT:
         ev.preventDefault();
         this._next();
         break;

@@ -8,8 +8,8 @@
    * @enum {number}
    */
   var Keycode = {
-    'up': 38,
-    'down': 40
+    'UP': 38,
+    'DOWN': 40
   };
 
 
@@ -38,7 +38,7 @@
     var key = window.event.keyCode;
     var isShift = !!window.event.shiftKey;
 
-    if (key !== Keycode.up && key !== Keycode.down) {
+    if (key !== Keycode.UP && key !== Keycode.DOWN) {
       return;
     }
 
@@ -47,11 +47,11 @@
     var target = ev.target;
     var val = parseInt(target.value) || 0;
 
-    if (key === Keycode.up && isShift) {
+    if (key === Keycode.UP && isShift) {
       target.value = val + 9;
     }
 
-    if (key === Keycode.down && isShift) {
+    if (key === Keycode.DOWN && isShift) {
       target.value = val - 9;
     }
   }
