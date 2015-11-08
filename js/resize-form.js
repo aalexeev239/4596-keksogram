@@ -115,7 +115,9 @@
 
   resizeForm.onsubmit = function(evt) {
     evt.preventDefault();
-    filterForm.elements['filter-image-src'] = previewImage.src;
+    var res = resizer.exportImage();
+    filterForm.elements['filter-image-src'].value = res.src;
+    filterForm.querySelector('.filter-image-preview').src = res.src;
 
     resizeForm.classList.add('invisible');
     filterForm.classList.remove('invisible');
