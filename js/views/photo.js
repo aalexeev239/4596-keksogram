@@ -176,8 +176,7 @@
       var likeBtn = this.el.querySelector('.picture-likes');
 
       if (likeBtn) {
-        var currentVal = parseInt(likeBtn.textContent, 10);
-        likeBtn.textContent = this.model.get('liked') ? currentVal + 1 : currentVal - 1;
+        likeBtn.textContent = this.model.get('liked');
       }
     }
   });
