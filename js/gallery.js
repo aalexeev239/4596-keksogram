@@ -38,7 +38,7 @@
   Gallery.prototype.show = function() {
     this._overlay.classList.remove('invisible');
     this._closeBtn.addEventListener('click', this._onCloseClick);
-    this._imageContainer.addEventListener('click', this._onPhotoClick);
+    // this._imageContainer.addEventListener('click', this._onPhotoClick);
     document.addEventListener('keydown', this._onKeyDown);
 
     this._showCurrentPhoto();
@@ -51,7 +51,7 @@
   Gallery.prototype.hide = function() {
     this._overlay.classList.add('invisible');
     this._closeBtn.removeEventListener('click', this._onCloseClick);
-    this._imageContainer.removeEventListener('click', this._onPhotoClick);
+    // this._imageContainer.removeEventListener('click', this._onPhotoClick);
     document.removeEventListener('keydown', this._onKeyDown);
   };
 
@@ -105,7 +105,6 @@
    * @private
    */
   Gallery.prototype._onPhotoClick = function(ev) {
-    ev.preventDefault();
     this._next();
   };
 
@@ -115,14 +114,20 @@
    * @private
    */
   Gallery.prototype._showCurrentPhoto = function() {
-    this._imageContainer.removeEventListener('click', this._onPhotoClick);
+    // this._imageContainer.removeEventListener('click', this._onPhotoClick);
 
     var preview = new PhotoPreview({ model: this._photos.at(this._currentPhoto)});
-    preview.render();
+    preview.setElement(this._imageContainer);
+    preview.el.querySelector('.gallery-overlay-image').src = preview.model.get('url');
+    preview.el.querySelector('.likes-count').textContent = preview.model.get('likes');
+    preview.el.querySelector('.comments-count').textContent = preview.model.get('comments');
+    preview.once('gallery.photoclick', this._onPhotoClick);
 
-    this._imageContainer.parentNode.replaceChild(preview.el, this._imageContainer);
-    this._imageContainer = preview.el;
-    this._imageContainer.addEventListener('click', this._onPhotoClick);
+
+
+    // this._imageContainer.parentNode.replaceChild(preview.el, this._imageContainer);
+    // this._imageContainer = preview.el;
+    // this._imageContainer.addEventListener('click', this._onPhotoClick);
   };
 
 

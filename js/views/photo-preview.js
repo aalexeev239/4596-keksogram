@@ -67,6 +67,12 @@
     _onClick: function(ev) {
       var target = ev.target;
 
+      // if clicked on image
+      if (target.tagName === 'IMG') {
+        this.trigger('gallery.photoclick');
+        return false;
+      }
+
       // if clicked on like toggle like and stop evaluating
       if (target.classList.contains('likes-count')) {
 
