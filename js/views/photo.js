@@ -49,12 +49,15 @@
 
       this.model.on('change:liked', this._onModelLike);
     },
+
     /**
      * rendering tag
-     * @type {Element}
+     * @type {string}
      * @override
      */
     tagName: 'a',
+
+
     /**
      * rendering classname
      * @type {string}
