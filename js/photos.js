@@ -190,15 +190,9 @@
     switch (val) {
       case 'new':
         res = items.filter(function(a) {
-          var dateA = Date.parse(a.date);
-          var now = Date.now();
-
-          return now - dateA < FILTER_NEW_AMOUNT;
+          return Date.now() - new Date(a.date) < FILTER_NEW_AMOUNT;
         }).sort(function(a, b) {
-          var dateA = Date.parse(a.date);
-          var dateB = Date.parse(b.date);
-
-          return dateB - dateA;
+          return (new Date(b.date)) - (new Date(a.date));
         });
         break;
 
