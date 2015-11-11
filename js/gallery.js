@@ -1,20 +1,25 @@
+/* global PhotoPreview:true */
+
 'use strict';
 
 (function() {
 
-  var KEYCODE = {
+  /**
+   * key mappings
+   * @enum {number}
+   */
+  var Keycode = {
     'ESC': 27,
     'LEFT': 37,
     'RIGHT': 39
   };
 
-  function Gallery(args) {
-    // enforces new
-    if (!(this instanceof Gallery)) {
-      return new Gallery(args);
-    }
-    // constructor body
-    this._photos = [];
+
+  /**
+   * @constructor
+   */
+  function Gallery() {
+    this._photos = new Backbone.Collection();
     this._currentPhoto = null;
 
     this._overlay = document.querySelector('.gallery-overlay');
@@ -32,9 +37,8 @@
    */
   Gallery.prototype.show = function() {
     this._overlay.classList.remove('invisible');
-
     this._closeBtn.addEventListener('click', this._onCloseClick);
-    this._imageContainer.addEventListener('click', this._onPhotoClick);
+    // this._imageContainer.addEventListener('click', this._onPhotoClick);
     document.addEventListener('keydown', this._onKeyDown);
 
     this._showCurrentPhoto();
@@ -47,13 +51,13 @@
   Gallery.prototype.hide = function() {
     this._overlay.classList.add('invisible');
     this._closeBtn.removeEventListener('click', this._onCloseClick);
-    this._imageContainer.removeEventListener('click', this._onPhotoClick);
+    // this._imageContainer.removeEventListener('click', this._onPhotoClick);
     document.removeEventListener('keydown', this._onKeyDown);
   };
 
 
   /**
-   * go to next image
+   * go to next image. If image is not currently loaded, go to next
    * @private
    */
   Gallery.prototype._next = function() {
@@ -63,7 +67,7 @@
 
 
   /**
-   * go to prev image
+   * go to prev image. If image is not currently loaded, go to prev
    * @private
    */
   Gallery.prototype._prev = function() {
@@ -78,26 +82,6 @@
    */
   Gallery.prototype.setPhotos = function(photos) {
     this._photos = photos;
-  };
-
-
-  /**
-   * get current photos count
-   * @return {number}
-   */
-  Gallery.prototype.getPhotosCount = function() {
-    var len = this._photos ? this._photos.length : 0;
-    return len;
-  };
-
-
-  /**
-   * resetAllPhotos
-   * @return {[type]} [description]
-   */
-  Gallery.prototype.resetPhotos = function() {
-    this._photos = [];
-    this._currentPhoto = null;
   };
 
 
@@ -117,26 +101,32 @@
 
   /**
    * go to next photo
-   * @param   {Event} ev [description]
+   * @param {Event} ev
    * @private
    */
   Gallery.prototype._onPhotoClick = function(ev) {
-    ev.preventDefault();
     this._next();
   };
 
 
+  /**
+   * showing photo
+   * @private
+   */
   Gallery.prototype._showCurrentPhoto = function() {
-    var img = new Image();
-    img.onload = function() {
-      this._imageContainer.innerHTML = '';
-      this._imageContainer.appendChild(img);
-    }.bind(this);
-    img.src = this._photos[this._currentPhoto];
+    // this._imageContainer.removeEventListener('click', this._onPhotoClick);
+
+    var preview = new PhotoPreview({ model: this._photos.at(this._currentPhoto)});
+    preview.setElement(this._imageContainer);
+    preview.render();
+    preview.once('gallery.photoclick', this._onPhotoClick);
+
+
+
+    // this._imageContainer.parentNode.replaceChild(preview.el, this._imageContainer);
+    // this._imageContainer = preview.el;
+    // this._imageContainer.addEventListener('click', this._onPhotoClick);
   };
-
-
-
 
 
   /**
@@ -148,6 +138,7 @@
     this.hide();
   };
 
+
   /**
    * keyboard listeners - close on esc, move on arrows
    * @param   {Event} ev
@@ -156,16 +147,16 @@
   Gallery.prototype._onKeyDown = function(ev) {
     switch (ev.keyCode) {
 
-      case KEYCODE.ESC:
+      case Keycode.ESC:
         this.hide();
         break;
 
-      case KEYCODE.LEFT:
+      case Keycode.LEFT:
         ev.preventDefault();
         this._prev();
         break;
 
-      case KEYCODE.RIGHT:
+      case Keycode.RIGHT:
         ev.preventDefault();
         this._next();
         break;

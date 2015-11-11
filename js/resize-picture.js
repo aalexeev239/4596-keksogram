@@ -14,12 +14,19 @@
     this._container = document.createElement('canvas');
     this._ctx = this._container.getContext('2d');
 
+    // Размеры холста
+    this.size = {
+      width: 0,
+      height: 0
+    };
+
     // Создаем холст только после загрузки изображения.
     this._image.onload = function() {
       // Размер холста равен размеру загруженного изображения. Это нужно
       // для удобства работы с координатами.
-      this._container.width = this._image.naturalWidth;
-      this._container.height = this._image.naturalHeight;
+      this.size.width = this._container.width = this._image.naturalWidth;
+      this.size.height = this._container.height = this._image.naturalHeight;
+
 
       /**
        * Предлагаемый размер кадра в виде коэффициента относительно меньшей
@@ -42,6 +49,7 @@
 
       // Отрисовка изначального состояния канваса.
       this.redraw();
+      window.dispatchEvent(new CustomEvent('resizerchange'));
     }.bind(this);
 
     // Фиксирование контекста обработчиков.
@@ -98,7 +106,12 @@
 
       // Отрисовка прямоугольника, обозначающего область изображения после
       // кадрирования. Координаты задаются от центра.
-      //
+      this._ctx.strokeStyle = '#FFE753';
+      this._ctx.setLineDash([15, 10]);
+      this._ctx.lineWidth = 6;
+
+      var halfside = Math.round(this._resizeConstraint.side / 2);
+      this._ctx.strokeRect(-halfside - 3, -halfside - 3, this._resizeConstraint.side + 6, this._resizeConstraint.side + 6);
 
       // Восстановление состояния канваса, которое было до вызова ctx.save
       // и последующего изменения системы координат. Нужно для того, чтобы
@@ -106,6 +119,7 @@
       // 0 0 находится в левом верхнем углу холста, в противном случае
       // некорректно сработает даже очистка холста или нужно будет использовать
       // сложные рассчеты для координат прямоугольника, который нужно очистить.
+
       this._ctx.restore();
     },
 
@@ -255,8 +269,8 @@
 
       // Получаем ImageData из области изначального изображения.
       var imageData = this._ctx.getImageData(
-          this._resizeConstraint.x,
-          this._resizeConstraint.y,
+          Math.floor(this._container.width / 2 - this._resizeConstraint.side / 2),
+          Math.floor(this._container.height / 2 - this._resizeConstraint.side / 2),
           this._resizeConstraint.side,
           this._resizeConstraint.side);
 
