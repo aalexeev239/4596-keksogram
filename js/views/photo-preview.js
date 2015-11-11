@@ -20,7 +20,7 @@
      * @type {string}
      * @override
      */
-    template: _.template(templateString),
+    // template: _.template(templateString),
 
 
     /**
@@ -28,7 +28,8 @@
      */
     initialize: function() {
       this._onModelLike = this._onModelLike.bind(this);
-      this._onClick = this._onClick.bind(this);
+      // this._onLikeClick = this._onLikeClick.bind(this);
+      // this._onImgClick = this._onImgClick.bind(this);
 
       this.model.on('change:liked', this._onModelLike);
     },
@@ -46,7 +47,10 @@
      * @override
      */
     render: function() {
-      this.el.innerHTML = this.template(this.model.attributes);
+      // this.el.innerHTML = this.template(this.model.attributes);
+      this.el.querySelector('.gallery-overlay-image').src = this.model.get('url');
+      this.el.querySelector('.likes-count').textContent = this.model.get('likes');
+      this.el.querySelector('.comments-count').textContent = this.model.get('comments');
     },
 
 
@@ -55,7 +59,8 @@
      * @type {Object.<string, string>}
      */
     events: {
-      'click': '_onClick'
+      'click img': '_onImgClick',
+      'click .likes-count': '_onLikeClick'
     },
 
 
@@ -64,27 +69,24 @@
      * @param   {MouseEvent} ev
      * @private
      */
-    _onClick: function(ev) {
-      var target = ev.target;
-
-      // if clicked on image
-      if (target.tagName === 'IMG') {
-        this.trigger('gallery.photoclick');
-        return false;
+    _onLikeClick: function() {
+      console.log('cl');
+      if (this.model.get('liked')) {
+        this.model.dislike();
+      } else {
+        this.model.like();
       }
+      return false;
+    },
 
-      // if clicked on like toggle like and stop evaluating
-      if (target.classList.contains('likes-count')) {
-
-        ev.stopImmediatePropagation();
-
-        if (this.model.get('liked')) {
-          this.model.dislike();
-        } else {
-          this.model.like();
-        }
-        return false;
-      }
+    /**
+     * click handler, check if like btn was pressed
+     * @param   {MouseEvent} ev
+     * @private
+     */
+    _onImgClick: function() {
+      console.log('ww');
+      this.trigger('galleryclick');
     },
 
 
@@ -92,12 +94,11 @@
       var likeBtn = this.el.querySelector('.likes-count');
 
       if (likeBtn) {
-        var currentVal = parseInt(likeBtn.textContent, 10);
         if (this.model.get('liked')) {
-          likeBtn.textContent = currentVal + 1;
+          likeBtn.textContent = this.model.get('likes') + 1;
           likeBtn.classList.add('likes-count-liked');
         } else {
-          likeBtn.textContent = currentVal - 1;
+          likeBtn.textContent = this.model.get('liked');
           likeBtn.classList.remove('likes-count-liked');
         }
       }

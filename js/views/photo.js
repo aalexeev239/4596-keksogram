@@ -176,7 +176,7 @@
       var likeBtn = this.el.querySelector('.picture-likes');
 
       if (likeBtn) {
-        likeBtn.textContent = this.model.get('liked');
+        likeBtn.textContent = this.model.get('liked') ? this.model.get('likes') + 1 : this.model.get('likes');
       }
     }
   });

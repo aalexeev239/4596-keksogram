@@ -118,9 +118,7 @@
 
     var preview = new PhotoPreview({ model: this._photos.at(this._currentPhoto)});
     preview.setElement(this._imageContainer);
-    preview.el.querySelector('.gallery-overlay-image').src = preview.model.get('url');
-    preview.el.querySelector('.likes-count').textContent = preview.model.get('likes');
-    preview.el.querySelector('.comments-count').textContent = preview.model.get('comments');
+    preview.render();
     preview.once('gallery.photoclick', this._onPhotoClick);
 
 
